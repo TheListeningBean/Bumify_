@@ -1,0 +1,1876 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bumify - Digital Twin Climate Action App</title>
+  <style>
+    :root {
+      --ink: #10221c;
+      --muted: #64746d;
+      --paper: #f5faf5;
+      --surface: #ffffff;
+      --soft: #edf6f0;
+      --line: rgba(16, 34, 28, 0.12);
+      --night: #061611;
+      --forest: #0f7d57;
+      --leaf: #21b36f;
+      --lime: #b8ee5f;
+      --aqua: #20bdd0;
+      --blue: #3478e5;
+      --violet: #8157e8;
+      --orange: #ff7a35;
+      --amber: #f3c747;
+      --danger: #ff675e;
+      --shadow: 0 22px 60px rgba(7, 22, 17, 0.15);
+      --radius: 8px;
+      --container: 1180px;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      scroll-behavior: smooth;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      overflow-x: hidden;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input {
+      font: inherit;
+    }
+
+    .container {
+      width: min(100% - 32px, var(--container));
+      margin: 0 auto;
+    }
+
+    .site-header {
+      position: fixed;
+      inset: 0 0 auto;
+      z-index: 50;
+      color: #f7fff8;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      transition: background 200ms ease, color 200ms ease, box-shadow 200ms ease;
+    }
+
+    .site-header.is-scrolled {
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 12px 32px rgba(7, 22, 17, 0.08);
+      backdrop-filter: blur(18px);
+    }
+
+    .nav-wrap {
+      width: min(100% - 32px, var(--container));
+      min-height: 72px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 950;
+      font-size: 1.12rem;
+    }
+
+    .brand-mark {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      color: var(--night);
+      background: linear-gradient(135deg, var(--lime), var(--aqua));
+      box-shadow: 0 14px 30px rgba(32, 189, 208, 0.26);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      font-size: 0.92rem;
+      font-weight: 800;
+    }
+
+    .nav-links a {
+      opacity: 0.84;
+    }
+
+    .nav-links a:hover {
+      opacity: 1;
+      color: var(--lime);
+    }
+
+    .site-header.is-scrolled .nav-links a:hover {
+      color: var(--forest);
+    }
+
+    .menu-button {
+      display: none;
+      width: 42px;
+      height: 42px;
+      border: 1px solid currentColor;
+      border-radius: 8px;
+      color: inherit;
+      background: transparent;
+      cursor: pointer;
+      place-items: center;
+    }
+
+    .menu-button span,
+    .menu-button span::before,
+    .menu-button span::after {
+      display: block;
+      width: 18px;
+      height: 2px;
+      border-radius: 99px;
+      background: currentColor;
+      content: "";
+    }
+
+    .menu-button span::before {
+      transform: translateY(-6px);
+    }
+
+    .menu-button span::after {
+      transform: translateY(4px);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 0 18px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform 170ms ease, box-shadow 170ms ease, background 170ms ease, border-color 170ms ease;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      color: var(--night);
+      background: var(--lime);
+      box-shadow: 0 16px 34px rgba(184, 238, 95, 0.26);
+    }
+
+    .btn-primary:hover {
+      background: #ccf574;
+    }
+
+    .btn-ghost {
+      color: #f7fff8;
+      border-color: rgba(255, 255, 255, 0.26);
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(14px);
+    }
+
+    .site-header.is-scrolled .btn-ghost,
+    .light-ghost {
+      color: var(--ink);
+      border-color: var(--line);
+      background: var(--surface);
+      box-shadow: 0 12px 24px rgba(7, 22, 17, 0.08);
+    }
+
+    .hero {
+      min-height: 88vh;
+      display: flex;
+      align-items: center;
+      color: #f7fff8;
+      overflow: hidden;
+      position: relative;
+      isolation: isolate;
+      padding: 120px 0 76px;
+      background:
+        linear-gradient(115deg, rgba(6, 22, 17, 0.96), rgba(6, 22, 17, 0.78) 55%, rgba(6, 22, 17, 0.45)),
+        linear-gradient(180deg, #0d2b23, #061611);
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.055) 1px, transparent 1px);
+      background-size: 80px 80px;
+      mask-image: linear-gradient(180deg, transparent, #000 12%, #000 78%, transparent);
+    }
+
+    #climateCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -3;
+    }
+
+    .hero-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(360px, 0.82fr);
+      gap: 42px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 18px;
+      padding: 8px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 999px;
+      color: #e6ffe9;
+      background: rgba(255, 255, 255, 0.08);
+      font-size: 0.8rem;
+      font-weight: 950;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: var(--lime);
+      box-shadow: 0 0 18px rgba(184, 238, 95, 0.85);
+      content: "";
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      margin-bottom: 18px;
+      font-size: 4.8rem;
+      line-height: 0.96;
+      letter-spacing: 0;
+      font-weight: 950;
+    }
+
+    h2 {
+      margin-bottom: 16px;
+      font-size: 3rem;
+      line-height: 1.05;
+      letter-spacing: 0;
+      font-weight: 950;
+    }
+
+    .hero-lead {
+      max-width: 640px;
+      color: rgba(247, 255, 248, 0.86);
+      font-size: 1.14rem;
+      line-height: 1.74;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 28px 0 30px;
+    }
+
+    .proof-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      max-width: 650px;
+    }
+
+    .proof {
+      padding: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+    }
+
+    .proof strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 1.16rem;
+    }
+
+    .proof span {
+      color: rgba(247, 255, 248, 0.74);
+      font-size: 0.82rem;
+      line-height: 1.42;
+      font-weight: 750;
+    }
+
+    .phone-shell {
+      position: relative;
+      min-height: 570px;
+    }
+
+    .phone {
+      width: min(100%, 300px);
+      height: 590px;
+      margin: 0 auto;
+      padding: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 38px;
+      background: #06100d;
+      box-shadow: 0 38px 95px rgba(0, 0, 0, 0.38);
+      transform: rotate(3deg);
+    }
+
+    .phone-screen {
+      height: 100%;
+      overflow: hidden;
+      border-radius: 28px;
+      color: var(--ink);
+      background: linear-gradient(180deg, #ecfff0, #f7fbff 42%, #f2f7f4);
+      padding: 30px 16px 16px;
+    }
+
+    .app-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      font-size: 0.76rem;
+      font-weight: 950;
+    }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--forest), var(--aqua));
+    }
+
+    .score-card {
+      padding: 15px;
+      border-radius: 8px;
+      color: #f7fff8;
+      background: linear-gradient(135deg, var(--forest), var(--aqua));
+      box-shadow: 0 18px 35px rgba(32, 189, 208, 0.24);
+    }
+
+    .score-card span,
+    .wallet-card span,
+    .mini-card span {
+      display: block;
+      margin-bottom: 6px;
+      color: rgba(255, 255, 255, 0.72);
+      font-size: 0.68rem;
+      font-weight: 950;
+      text-transform: uppercase;
+    }
+
+    .score-card strong {
+      display: block;
+      font-size: 2rem;
+      line-height: 1;
+    }
+
+    .app-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin: 10px 0;
+    }
+
+    .mini-card {
+      min-height: 78px;
+      padding: 10px;
+      border: 1px solid rgba(16, 34, 28, 0.08);
+      border-radius: 8px;
+      background: #ffffff;
+    }
+
+    .mini-card span {
+      color: var(--muted);
+    }
+
+    .mini-card strong {
+      display: block;
+      font-size: 1.08rem;
+    }
+
+    .wallet-card {
+      padding: 13px;
+      border-radius: 8px;
+      color: #f7fff8;
+      background: var(--night);
+    }
+
+    .wallet-card strong {
+      display: block;
+      margin-bottom: 9px;
+      font-size: 1.18rem;
+    }
+
+    .wallet-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+
+    .wallet-options b {
+      display: block;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 8px;
+      font-size: 0.72rem;
+      text-align: center;
+    }
+
+    .float-card {
+      position: absolute;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 8px;
+      color: #f7fff8;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.24);
+      padding: 16px;
+    }
+
+    .float-card.one {
+      left: 0;
+      bottom: 80px;
+      width: 210px;
+    }
+
+    .float-card.two {
+      right: 0;
+      top: 120px;
+      width: 220px;
+      background: rgba(129, 87, 232, 0.2);
+    }
+
+    .float-card small {
+      display: block;
+      color: rgba(247, 255, 248, 0.66);
+      font-weight: 950;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .float-card strong {
+      display: block;
+      font-size: 1.32rem;
+    }
+
+    .section-pad {
+      padding: 92px 0;
+    }
+
+    .section-head {
+      max-width: 780px;
+      margin-bottom: 36px;
+    }
+
+    .kicker {
+      display: inline-block;
+      margin-bottom: 12px;
+      color: var(--forest);
+      font-size: 0.78rem;
+      font-weight: 950;
+      text-transform: uppercase;
+    }
+
+    .section-head p {
+      max-width: 730px;
+      color: var(--muted);
+      font-size: 1.03rem;
+      line-height: 1.74;
+    }
+
+    .stats-grid,
+    .feature-grid,
+    .impact-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .stat-card,
+    .feature-card,
+    .work-card,
+    .exchange-card,
+    .road-card,
+    .price-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: 0 16px 38px rgba(7, 22, 17, 0.06);
+    }
+
+    .stat-card {
+      min-height: 150px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .stat-card strong {
+      color: var(--forest);
+      font-size: 2.15rem;
+      line-height: 1;
+    }
+
+    .stat-card:nth-child(2) strong {
+      color: var(--danger);
+    }
+
+    .stat-card:nth-child(3) strong {
+      color: var(--blue);
+    }
+
+    .stat-card:nth-child(4) strong {
+      color: var(--violet);
+    }
+
+    .stat-card span {
+      color: var(--muted);
+      line-height: 1.48;
+      font-weight: 750;
+      font-size: 0.9rem;
+    }
+
+    .features {
+      background: var(--surface);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .feature-card {
+      min-height: 250px;
+      position: relative;
+      overflow: hidden;
+      padding: 24px;
+    }
+
+    .feature-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto;
+      height: 5px;
+      background: var(--forest);
+    }
+
+    .feature-card:nth-child(2)::before {
+      background: var(--aqua);
+    }
+
+    .feature-card:nth-child(3)::before {
+      background: var(--violet);
+    }
+
+    .feature-card:nth-child(4)::before {
+      background: var(--orange);
+    }
+
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 18px;
+      border-radius: 8px;
+      color: var(--forest);
+      background: var(--soft);
+    }
+
+    .feature-icon svg {
+      width: 24px;
+      height: 24px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .feature-card h3 {
+      margin-bottom: 10px;
+      font-size: 1.23rem;
+    }
+
+    .feature-card p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.62;
+      font-size: 0.96rem;
+    }
+
+    .how {
+      background:
+        radial-gradient(circle at top left, rgba(32, 189, 208, 0.08), transparent 34%),
+        var(--paper);
+    }
+
+    .work-steps {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .work-steps::before {
+      content: "";
+      position: absolute;
+      left: 7%;
+      right: 7%;
+      top: 92px;
+      height: 5px;
+      background: linear-gradient(90deg, var(--blue), var(--aqua), var(--forest), var(--orange), var(--violet));
+      opacity: 0.9;
+      border-radius: 999px;
+    }
+
+    .work-card {
+      min-height: 330px;
+      position: relative;
+      overflow: hidden;
+      padding: 22px;
+      background: rgba(255, 255, 255, 0.92);
+    }
+
+    .work-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto;
+      height: 5px;
+      background: var(--blue);
+    }
+
+    .work-card:nth-child(2)::before {
+      background: var(--aqua);
+    }
+
+    .work-card:nth-child(3)::before {
+      background: var(--forest);
+    }
+
+    .work-card:nth-child(4)::before {
+      background: var(--orange);
+    }
+
+    .work-card:nth-child(5)::before {
+      background: var(--violet);
+    }
+
+    .step-icon {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      color: #ffffff;
+      background: var(--blue);
+      box-shadow: 0 14px 24px rgba(52, 120, 229, 0.2);
+    }
+
+    .work-card:nth-child(2) .step-icon {
+      background: var(--aqua);
+    }
+
+    .work-card:nth-child(3) .step-icon {
+      background: var(--forest);
+    }
+
+    .work-card:nth-child(4) .step-icon {
+      background: var(--orange);
+    }
+
+    .work-card:nth-child(5) .step-icon {
+      background: var(--violet);
+    }
+
+    .step-icon svg {
+      width: 23px;
+      height: 23px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .work-card h3 {
+      margin-bottom: 10px;
+      font-size: 1.08rem;
+      line-height: 1.15;
+    }
+
+    .work-card p {
+      margin: 0;
+      color: #617184;
+      line-height: 1.54;
+      font-size: 0.92rem;
+      font-weight: 650;
+    }
+
+    .step-number {
+      position: absolute;
+      right: -4px;
+      bottom: -32px;
+      color: rgba(16, 34, 28, 0.06);
+      font-size: 8rem;
+      line-height: 1;
+      font-weight: 950;
+    }
+
+    .exchange {
+      color: #f7fff8;
+      background:
+        linear-gradient(125deg, rgba(6, 22, 17, 0.98), rgba(10, 48, 39, 0.94)),
+        var(--night);
+      overflow: hidden;
+    }
+
+    .exchange .kicker {
+      color: var(--lime);
+    }
+
+    .exchange .section-head p {
+      color: rgba(247, 255, 248, 0.74);
+    }
+
+    .exchange-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 0.92fr) minmax(360px, 1.08fr);
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .exchange-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .exchange-card {
+      display: grid;
+      grid-template-columns: 52px 1fr;
+      gap: 14px;
+      align-items: center;
+      padding: 18px;
+      color: #f7fff8;
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.12);
+      box-shadow: none;
+    }
+
+    .exchange-mark {
+      width: 52px;
+      height: 52px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      color: var(--night);
+      background: var(--lime);
+      font-weight: 950;
+    }
+
+    .exchange-card h3 {
+      margin-bottom: 4px;
+      font-size: 1.02rem;
+    }
+
+    .exchange-card p {
+      margin: 0;
+      color: rgba(247, 255, 248, 0.7);
+      line-height: 1.48;
+      font-size: 0.9rem;
+    }
+
+    .exchange-panel {
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      background:
+        linear-gradient(145deg, rgba(184, 238, 95, 0.14), rgba(32, 189, 208, 0.1)),
+        rgba(255, 255, 255, 0.07);
+      padding: 24px;
+      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.25);
+    }
+
+    .wallet-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 22px;
+    }
+
+    .wallet-tab {
+      min-height: 50px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 8px;
+      color: #f7fff8;
+      background: rgba(255, 255, 255, 0.08);
+      font-weight: 950;
+      cursor: pointer;
+    }
+
+    .wallet-tab.is-active {
+      color: var(--night);
+      background: var(--lime);
+      border-color: transparent;
+    }
+
+    .exchange-control {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .exchange-control label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: rgba(247, 255, 248, 0.78);
+      font-weight: 850;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--lime);
+    }
+
+    .exchange-result {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .result-box {
+      padding: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .result-box span {
+      display: block;
+      margin-bottom: 6px;
+      color: rgba(247, 255, 248, 0.64);
+      font-size: 0.75rem;
+      font-weight: 950;
+      text-transform: uppercase;
+    }
+
+    .result-box strong {
+      display: block;
+      font-size: 1.75rem;
+      line-height: 1;
+    }
+
+    .exchange-note {
+      color: rgba(247, 255, 248, 0.72);
+      line-height: 1.62;
+      font-size: 0.94rem;
+    }
+
+    .tech {
+      background: var(--surface);
+    }
+
+    .tech-layout {
+      display: grid;
+      grid-template-columns: 0.95fr 1.05fr;
+      gap: 28px;
+      align-items: center;
+    }
+
+    .tech-stack {
+      display: grid;
+      gap: 12px;
+    }
+
+    .tech-item {
+      display: grid;
+      grid-template-columns: 44px 1fr;
+      gap: 14px;
+      align-items: center;
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+    }
+
+    .tech-item b {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      color: var(--forest);
+      background: var(--soft);
+    }
+
+    .tech-item strong {
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .tech-item span {
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 0.9rem;
+    }
+
+    .roadmap {
+      background: #eef7f4;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .road-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .road-card {
+      min-height: 250px;
+      padding: 22px;
+    }
+
+    .road-card span {
+      display: inline-block;
+      margin-bottom: 18px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      color: var(--forest);
+      background: var(--soft);
+      font-size: 0.8rem;
+      font-weight: 950;
+    }
+
+    .road-card h3 {
+      margin-bottom: 10px;
+    }
+
+    .road-card ul,
+    .price-card ul {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .road-card li,
+    .price-card li {
+      position: relative;
+      padding-left: 22px;
+      color: var(--muted);
+      line-height: 1.48;
+      font-weight: 650;
+    }
+
+    .road-card li::before,
+    .price-card li::before {
+      content: "";
+      position: absolute;
+      top: 0.55em;
+      left: 0;
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: var(--leaf);
+    }
+
+    .impact {
+      color: #f7fff8;
+      background: var(--night);
+    }
+
+    .impact .kicker {
+      color: var(--lime);
+    }
+
+    .impact .section-head p {
+      color: rgba(247, 255, 248, 0.72);
+    }
+
+    .impact-card {
+      min-height: 170px;
+      padding: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.07);
+    }
+
+    .impact-card strong {
+      display: block;
+      margin-bottom: 12px;
+      color: var(--lime);
+      font-size: 2.25rem;
+      line-height: 1;
+    }
+
+    .impact-card span {
+      color: rgba(247, 255, 248, 0.72);
+      line-height: 1.5;
+      font-weight: 750;
+    }
+
+    .pricing {
+      background: var(--surface);
+    }
+
+    .price-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      max-width: 900px;
+    }
+
+    .price-card {
+      min-height: 390px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .price-card.featured {
+      color: #f7fff8;
+      border-color: transparent;
+      background: linear-gradient(145deg, rgba(15, 125, 87, 0.96), rgba(32, 189, 208, 0.9));
+      box-shadow: var(--shadow);
+    }
+
+    .price {
+      margin-bottom: 18px;
+      font-size: 2.65rem;
+      line-height: 1;
+      font-weight: 950;
+    }
+
+    .price small {
+      color: var(--muted);
+      font-size: 0.96rem;
+      font-weight: 850;
+    }
+
+    .price-card.featured .price small,
+    .price-card.featured li {
+      color: rgba(247, 255, 248, 0.78);
+    }
+
+    .price-card.featured li::before {
+      background: var(--lime);
+    }
+
+    .cta {
+      min-height: 440px;
+      display: grid;
+      align-items: center;
+      color: #f7fff8;
+      background:
+        linear-gradient(115deg, rgba(6, 22, 17, 0.96), rgba(10, 48, 39, 0.88)),
+        var(--night);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+      background-size: 72px 72px;
+      opacity: 0.55;
+    }
+
+    .cta-inner {
+      position: relative;
+      z-index: 2;
+      max-width: 800px;
+    }
+
+    .cta p {
+      color: rgba(247, 255, 248, 0.78);
+      font-size: 1.07rem;
+      line-height: 1.72;
+    }
+
+    .site-footer {
+      padding: 28px 0;
+      color: rgba(247, 255, 248, 0.72);
+      background: #061611;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .footer-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 1100px) {
+      h1 {
+        font-size: 4rem;
+      }
+
+      h2 {
+        font-size: 2.52rem;
+      }
+
+      .hero-layout,
+      .tech-layout,
+      .exchange-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .phone-shell {
+        min-height: 460px;
+      }
+
+      .phone {
+        height: 500px;
+      }
+
+      .stats-grid,
+      .feature-grid,
+      .impact-grid,
+      .road-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .work-steps {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .work-steps::before {
+        display: none;
+      }
+    }
+
+    @media (max-width: 820px) {
+      .menu-button {
+        display: grid;
+      }
+
+      .nav-links {
+        position: absolute;
+        top: 72px;
+        left: 16px;
+        right: 16px;
+        display: none;
+        grid-template-columns: 1fr;
+        gap: 0;
+        padding: 8px;
+        color: var(--ink);
+        background: rgba(255, 255, 255, 0.96);
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+      }
+
+      .nav-links.is-open {
+        display: grid;
+      }
+
+      .nav-links a {
+        padding: 14px;
+        border-radius: 8px;
+      }
+
+      .nav-cta {
+        display: none;
+      }
+
+      .proof-row,
+      .price-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .float-card {
+        display: none;
+      }
+
+      .wallet-tabs,
+      .exchange-result {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 620px) {
+      .container,
+      .nav-wrap {
+        width: min(100% - 24px, var(--container));
+      }
+
+      .section-pad {
+        padding: 70px 0;
+      }
+
+      h1 {
+        font-size: 2.75rem;
+      }
+
+      h2 {
+        font-size: 2.05rem;
+      }
+
+      .hero {
+        min-height: 86vh;
+        padding-top: 108px;
+      }
+
+      .hero-actions .btn {
+        width: 100%;
+      }
+
+      .phone-shell {
+        display: none;
+      }
+
+      .stats-grid,
+      .feature-grid,
+      .work-steps,
+      .impact-grid,
+      .road-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .work-card {
+        min-height: 250px;
+      }
+
+      .exchange-panel {
+        padding: 18px;
+      }
+
+      .wallet-tabs,
+      .exchange-result {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-row {
+        flex-direction: column;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+}
+
+.brand-logo {
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+}
+
+.brand-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2E7D32;
+}
+  </style>
+</head>
+<body>
+  <header class="site-header" id="siteHeader">
+    <div class="nav-wrap">
+      <a href="#home" class="brand" aria-label="Bumify beranda">
+    <img src="ChatGPT Image Jul 6, 2026, 08_31_56 PM.png" alt="Logo Bumify" class="brand-logo">
+    <span class="brand-name">Bumify</span>
+</a>
+      <nav class="nav-links" id="navLinks" aria-label="Navigasi utama">
+        <a href="#fitur">Fitur</a>
+        <a href="#cara-kerja">Cara Kerja</a>
+        <a href="#ewallet">E-Wallet</a>
+        <a href="#teknologi">Teknologi</a>
+        <a href="#harga">Harga</a>
+      </nav>
+      <div>
+        <a class="btn btn-ghost nav-cta" href="#ewallet">Tukar Token</a>
+        <button class="menu-button" id="menuButton" type="button" aria-label="Buka menu" aria-expanded="false">
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="home">
+      <canvas id="climateCanvas" aria-hidden="true"></canvas>
+      <div class="container hero-layout">
+        <div>
+          <p class="eyebrow">Digital Twin, AI, EcoQuest, GreenToken</p>
+          <h1>Bumify</h1>
+          <p class="hero-lead">Platform aksi iklim untuk Gen Z yang mengubah jejak karbon harian menjadi visualisasi real-time, tantangan seru, GreenToken, dan reward nyata sampai saldo e-wallet.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#fitur">Jelajahi Fitur</a>
+            <a class="btn btn-ghost" href="#ewallet">Lihat Tukar E-Wallet</a>
+          </div>
+          <div class="proof-row">
+            <div class="proof">
+              <strong>AI Carbon</strong>
+              <span>Kalkulasi personal dari aktivitas transportasi, energi, dan konsumsi.</span>
+            </div>
+            <div class="proof">
+              <strong>EcoQuest</strong>
+              <span>Misi harian, streak, badge, dan leaderboard komunitas.</span>
+            </div>
+            <div class="proof">
+              <strong>E-Wallet Reward</strong>
+              <span>GreenToken bisa ditukar ke DANA, OVO, GoPay, atau ShopeePay.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="phone-shell" aria-hidden="true">
+          <div class="float-card one">
+            <small>EcoQuest</small>
+            <strong>5 hari streak</strong>
+          </div>
+          <div class="float-card two">
+            <small>Withdraw</small>
+            <strong>DANA +Rp 25.000</strong>
+          </div>
+          <div class="phone">
+            <div class="phone-screen">
+              <div class="app-top">
+                <span>Bumify</span>
+                <span class="avatar"></span>
+              </div>
+              <div class="score-card">
+                <span>Jejak karbon minggu ini</span>
+                <strong>18.4 kg</strong>
+                <small>Turun 22% dari minggu lalu</small>
+              </div>
+              <div class="app-grid">
+                <div class="mini-card">
+                  <span>BumiTwin</span>
+                  <strong>Sehat</strong>
+                </div>
+                <div class="mini-card">
+                  <span>GreenToken</span>
+                  <strong>1.240</strong>
+                </div>
+              </div>
+              <div class="wallet-card">
+                <span>Tukar reward</span>
+                <strong>Saldo e-wallet</strong>
+                <div class="wallet-options">
+                  <b>DANA</b>
+                  <b>OVO</b>
+                  <b>GoPay</b>
+                  <b>ShopeePay</b>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-pad">
+      <div class="container">
+        <div class="section-head">
+          <span class="kicker">Masalah yang dijawab</span>
+          <h2>Kepedulian Gen Z tinggi, tapi aksi terukur masih rendah.</h2>
+          <p>Bumify menjembatani kepedulian dan aksi nyata lewat visualisasi dampak, rekomendasi AI, gamifikasi, dan insentif yang langsung terasa manfaatnya.</p>
+        </div>
+        <div class="stats-grid">
+          <article class="stat-card">
+            <strong data-count="68" data-suffix="%">0%</strong>
+            <span>Gen Z Indonesia sangat khawatir terhadap perubahan iklim.</span>
+          </article>
+          <article class="stat-card">
+            <strong data-count="5" data-prefix="<" data-suffix="%">0%</strong>
+            <span>Gen Z konsisten melakukan aksi iklim yang terukur.</span>
+          </article>
+          <article class="stat-card">
+            <strong data-count="47">0</strong>
+            <span>Mitra data untuk transportasi, energi, pangan, dan reward.</span>
+          </article>
+          <article class="stat-card">
+            <strong data-count="2" data-suffix="x">0x</strong>
+            <span>Multiplier GreenToken untuk pengguna Premium.</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="features section-pad" id="fitur">
+      <div class="container">
+        <div class="section-head">
+          <span class="kicker">Fitur utama</span>
+          <h2>Semua fitur inti Bumify dalam satu ekosistem.</h2>
+          <p>Website ini sekarang menampilkan fitur tukar e-wallet sebagai fitur reward utama, bukan hanya bagian kecil dari GreenToken.</p>
+        </div>
+        <div class="feature-grid">
+          <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v4"/><path d="M12 18v4"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="m4.9 4.9 2.8 2.8"/><path d="m16.3 16.3 2.8 2.8"/></svg>
+            </div>
+            <h3>AI Engine</h3>
+            <p>Menghitung jejak karbon personal dan memberi rekomendasi aksi rendah emisi yang realistis.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="M8 9h8"/><path d="M8 13h5"/><path d="M15 16h1"/></svg>
+            </div>
+            <h3>Digital Twin BumiKu</h3>
+            <p>Planet 3D personal berubah sesuai performa karbon harian pengguna secara real-time.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v6a5 5 0 0 1-10 0V4z"/><path d="M5 6H3v2a4 4 0 0 0 4 4"/><path d="M19 6h2v2a4 4 0 0 1-4 4"/></svg>
+            </div>
+            <h3>EcoQuest Harian</h3>
+            <p>Quest, badge, streak, dan leaderboard membuat aksi iklim terasa seperti game.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M16 11h4"/><path d="M7 9h5"/><path d="M7 13h3"/></svg>
+            </div>
+            <h3>Tukar E-Wallet</h3>
+            <p>GreenToken dapat dicairkan menjadi saldo DANA, OVO, GoPay, ShopeePay, voucher, pohon, dan merchandise hijau.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="how section-pad" id="cara-kerja">
+      <div class="container">
+        <div class="section-head">
+          <span class="kicker">Cara kerja Bumify</span>
+          <h2>Alurnya jelas dari input profil sampai tukar GreenToken.</h2>
+          <p>Bagian ini dibuat mengikuti diagram cara kerja di dokumen: lima tahap utama dari registrasi sampai reward nyata.</p>
+        </div>
+        <div class="work-steps">
+          <article class="work-card">
+            <div class="step-icon"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="9.5" cy="7" r="4"/><path d="M19 8v6"/><path d="M22 11h-6"/></svg></div>
+            <h3>Registrasi & Profil</h3>
+            <p>Input kebiasaan dasar, koneksi akun, e-commerce, PLN, dan GPS.</p>
+            <span class="step-number">1</span>
+          </article>
+          <article class="work-card">
+            <div class="step-icon"><svg viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2"/><path d="M9 2v3"/><path d="M15 2v3"/><path d="M9 19v3"/><path d="M15 19v3"/><path d="M2 9h3"/><path d="M2 15h3"/><path d="M19 9h3"/><path d="M19 15h3"/></svg></div>
+            <h3>Monitoring Real-Time</h3>
+            <p>AI menghitung jejak karbon otomatis dari data terintegrasi.</p>
+            <span class="step-number">2</span>
+          </article>
+          <article class="work-card">
+            <div class="step-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8"/><path d="M3.6 15h16.8"/><path d="M12 3a14 14 0 0 1 0 18"/><path d="M12 3a14 14 0 0 0 0 18"/></svg></div>
+            <h3>Visualisasi BumiKu</h3>
+            <p>Planet personal berubah sesuai performa karbon harian.</p>
+            <span class="step-number">3</span>
+          </article>
+          <article class="work-card">
+            <div class="step-icon"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+            <h3>EcoQuest Harian</h3>
+            <p>Selesaikan misi aksi iklim, kumpulkan EcoPoints dan badge.</p>
+            <span class="step-number">4</span>
+          </article>
+          <article class="work-card">
+            <div class="step-icon"><svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M7 8V6a5 5 0 0 1 10 0v2"/><path d="M12 12v5"/><path d="M9.5 14.5h5"/></svg></div>
+            <h3>Tukar GreenToken</h3>
+            <p>Reward nyata: e-wallet, voucher, pohon, dan merchandise hijau.</p>
+            <span class="step-number">5</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="exchange section-pad" id="ewallet">
+      <div class="container exchange-layout">
+        <div>
+          <div class="section-head">
+            <span class="kicker">Fitur yang kamu maksud</span>
+            <h2>Tukar GreenToken langsung ke e-wallet.</h2>
+            <p>Fitur ini membuat reward Bumify terasa nyata. Aksi rendah karbon yang tervalidasi berubah menjadi GreenToken, lalu bisa ditukar ke saldo digital atau pilihan reward hijau lainnya.</p>
+          </div>
+          <div class="exchange-list">
+            <article class="exchange-card">
+              <span class="exchange-mark">1</span>
+              <div>
+                <h3>Pilih reward</h3>
+                <p>DANA, OVO, GoPay, ShopeePay, voucher hijau, tanam pohon, atau merchandise.</p>
+              </div>
+            </article>
+            <article class="exchange-card">
+              <span class="exchange-mark">2</span>
+              <div>
+                <h3>Validasi token</h3>
+                <p>Sistem mengecek saldo GreenToken dan riwayat aksi agar reward tetap fair.</p>
+              </div>
+            </article>
+            <article class="exchange-card">
+              <span class="exchange-mark">3</span>
+              <div>
+                <h3>Kirim ke e-wallet</h3>
+                <p>Saldo masuk ke nomor e-wallet pengguna setelah proses klaim selesai.</p>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <div class="exchange-panel">
+          <div class="wallet-tabs" aria-label="Pilih e-wallet">
+            <button class="wallet-tab is-active" type="button" data-wallet="DANA">DANA</button>
+            <button class="wallet-tab" type="button" data-wallet="OVO">OVO</button>
+            <button class="wallet-tab" type="button" data-wallet="GoPay">GoPay</button>
+            <button class="wallet-tab" type="button" data-wallet="ShopeePay">ShopeePay</button>
+          </div>
+          <div class="exchange-control">
+            <label for="tokenRange">
+              <span>GreenToken ditukar</span>
+              <output id="tokenOut">500 token</output>
+            </label>
+            <input id="tokenRange" type="range" min="100" max="5000" step="50" value="500" />
+          </div>
+          <div class="exchange-result">
+            <div class="result-box">
+              <span>Tujuan</span>
+              <strong id="walletName">DANA</strong>
+            </div>
+            <div class="result-box">
+              <span>Estimasi saldo</span>
+              <strong id="walletValue">Rp 25.000</strong>
+            </div>
+          </div>
+          <p class="exchange-note">Simulasi ini memakai rasio contoh 1 GreenToken = Rp 50. Di aplikasi asli, rasio bisa disesuaikan dengan sponsor, promo, dan kebijakan reward Bumify.</p>
+          <a class="btn btn-primary" href="#harga">Aktifkan Reward</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="tech section-pad" id="teknologi">
+      <div class="container tech-layout">
+        <div class="section-head">
+          <span class="kicker">Teknologi</span>
+          <h2>Arsitektur siap untuk data real-time dan reward terverifikasi.</h2>
+          <p>Bumify menggunakan pendekatan cloud-native microservices agar AI, Digital Twin, EcoQuest, wallet, dan integrasi partner bisa berkembang dengan aman.</p>
+        </div>
+        <div class="tech-stack">
+          <div class="tech-item"><b>01</b><div><strong>React Native</strong><span>Mobile app lintas Android dan iOS.</span></div></div>
+          <div class="tech-item"><b>02</b><div><strong>Python FastAPI</strong><span>Backend AI engine dan carbon calculation.</span></div></div>
+          <div class="tech-item"><b>03</b><div><strong>TensorFlow/PyTorch</strong><span>Model rekomendasi aksi dan estimasi emisi.</span></div></div>
+          <div class="tech-item"><b>04</b><div><strong>PostgreSQL + Redis</strong><span>Data pengguna, leaderboard, dan reward wallet.</span></div></div>
+          <div class="tech-item"><b>05</b><div><strong>Polygon Blockchain</strong><span>GreenToken hemat energi dan transparan.</span></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="roadmap section-pad">
+      <div class="container">
+        <div class="section-head">
+          <span class="kicker">Roadmap 2025-2030</span>
+          <h2>Dari MVP sampai platform nasional.</h2>
+          <p>Roadmap Bumify mengembangkan teknologi, kemitraan, marketplace, dan reward e-wallet secara bertahap.</p>
+        </div>
+        <div class="road-grid">
+          <article class="road-card">
+            <span>2025</span>
+            <h3>Fondasi</h3>
+            <ul>
+              <li>MVP AI carbon tracker dan BumiKu.</li>
+              <li>Desain EcoQuest dan GreenToken.</li>
+              <li>Validasi awal di komunitas kampus.</li>
+            </ul>
+          </article>
+          <article class="road-card">
+            <span>2026</span>
+            <h3>Pilot launch</h3>
+            <ul>
+              <li>Beta app untuk pengguna Gen Z.</li>
+              <li>Integrasi mitra transportasi dan pangan.</li>
+              <li>Wallet reward dan e-wallet exchange.</li>
+            </ul>
+          </article>
+          <article class="road-card">
+            <span>2027-2028</span>
+            <h3>Ekspansi</h3>
+            <ul>
+              <li>Marketplace produk ramah lingkungan.</li>
+              <li>Challenge berbasis lokasi.</li>
+              <li>Sponsor brand hijau dan voucher partner.</li>
+            </ul>
+          </article>
+          <article class="road-card">
+            <span>2029-2030</span>
+            <h3>Skala nasional</h3>
+            <ul>
+              <li>Adopsi luas untuk aksi iklim masyarakat.</li>
+              <li>Dashboard dampak nasional anonim.</li>
+              <li>Kontribusi ke target rendah karbon.</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="impact section-pad">
+      <div class="container">
+        <div class="section-head">
+          <span class="kicker">Dampak 5 tahun</span>
+          <h2>Target besar, tetap bisa dilacak dengan data.</h2>
+          <p>Bumify memproyeksikan dampak dari pengguna aktif, pengurangan CO2, penanaman pohon, dan penghematan sosial ekonomi.</p>
+        </div>
+        <div class="impact-grid">
+          <article class="impact-card"><strong data-count="10" data-suffix=" juta">0</strong><span>Target pengguna aktif 2030.</span></article>
+          <article class="impact-card"><strong data-count="2.4" data-suffix=" juta ton">0</strong><span>CO2 tereduksi per tahun.</span></article>
+          <article class="impact-card"><strong data-count="500" data-suffix=" ribu">0</strong><span>Pohon tertanam via GreenToken.</span></article>
+          <article class="impact-card"><strong data-count="48" data-prefix="Rp " data-suffix="M">0</strong><span>Penghematan sosial ekonomi per tahun.</span></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="pricing section-pad" id="harga">
+      <div class="container">
+        <div class="section-head">
+          <span class="kicker">Harga</span>
+          <h2>Gratis untuk mulai, Premium untuk reward lebih kencang.</h2>
+          <p>Model freemium menjaga Bumify tetap mudah diakses, sementara Premium memberi AI lanjutan dan multiplier GreenToken.</p>
+        </div>
+        <div class="price-grid">
+          <article class="price-card">
+            <div>
+              <h3>Bumify Free</h3>
+              <div class="price">Rp 0 <small>/selamanya</small></div>
+              <ul>
+                <li>Carbon tracking dasar.</li>
+                <li>BumiKu personal.</li>
+                <li>EcoQuest harian.</li>
+                <li>Tukar GreenToken standar.</li>
+              </ul>
+            </div>
+            <a class="btn light-ghost" href="#home">Mulai Gratis</a>
+          </article>
+          <article class="price-card featured">
+            <div>
+              <h3>Bumify Premium</h3>
+              <div class="price">Rp 29.000 <small>/bulan</small></div>
+              <ul>
+                <li>AI recommendation lanjutan.</li>
+                <li>Analitik karbon mendalam.</li>
+                <li>Multiplier GreenToken 2x.</li>
+                <li>Prioritas promo e-wallet partner.</li>
+              </ul>
+            </div>
+            <a class="btn btn-primary" href="#ewallet">Coba Tukar Reward</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta">
+      <div class="container cta-inner">
+        <span class="kicker">Ajakan</span>
+        <h2>Karena bumi butuh aksimu, bukan sekadar kepedulianmu.</h2>
+        <p>Bumify membuat aksi iklim terasa personal, menyenangkan, terukur, dan punya reward nyata yang bisa dipakai dalam kehidupan sehari-hari.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#ewallet">Tukar GreenToken</a>
+          <a class="btn btn-ghost" href="#fitur">Lihat Semua Fitur</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-row">
+      <span>Bumify - Digital Twin Climate Action App</span>
+      <span>GreenToken, EcoQuest, BumiKu, dan e-wallet reward.</span>
+    </div>
+  </footer>
+
+  <script>
+    const header = document.getElementById("siteHeader");
+    const menuButton = document.getElementById("menuButton");
+    const navLinks = document.getElementById("navLinks");
+
+    function updateHeader() {
+      header.classList.toggle("is-scrolled", window.scrollY > 24);
+    }
+
+    window.addEventListener("scroll", updateHeader, { passive: true });
+    updateHeader();
+
+    menuButton.addEventListener("click", () => {
+      const isOpen = navLinks.classList.toggle("is-open");
+      menuButton.setAttribute("aria-expanded", String(isOpen));
+    });
+
+    navLinks.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", () => {
+        navLinks.classList.remove("is-open");
+        menuButton.setAttribute("aria-expanded", "false");
+      });
+    });
+
+    const walletTabs = document.querySelectorAll(".wallet-tab");
+    const walletName = document.getElementById("walletName");
+    const walletValue = document.getElementById("walletValue");
+    const tokenRange = document.getElementById("tokenRange");
+    const tokenOut = document.getElementById("tokenOut");
+
+    function formatRupiah(value) {
+      return new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        maximumFractionDigits: 0
+      }).format(value);
+    }
+
+    function updateExchange() {
+      const token = Number(tokenRange.value);
+      tokenOut.textContent = `${token.toLocaleString("id-ID")} token`;
+      walletValue.textContent = formatRupiah(token * 50);
+    }
+
+    walletTabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        walletTabs.forEach((item) => item.classList.remove("is-active"));
+        tab.classList.add("is-active");
+        walletName.textContent = tab.dataset.wallet;
+      });
+    });
+
+    tokenRange.addEventListener("input", updateExchange);
+    updateExchange();
+
+    const counterObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const el = entry.target;
+        const target = Number(el.dataset.count || 0);
+        const prefix = el.dataset.prefix || "";
+        const suffix = el.dataset.suffix || "";
+        const decimal = String(target).includes(".");
+        const start = performance.now();
+        const duration = 1000;
+
+        function tick(now) {
+          const progress = Math.min((now - start) / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 3);
+          const value = target * eased;
+          const text = decimal ? value.toFixed(1) : Math.round(value).toLocaleString("id-ID");
+          el.textContent = `${prefix}${text}${suffix}`;
+          if (progress < 1) requestAnimationFrame(tick);
+        }
+
+        requestAnimationFrame(tick);
+        observer.unobserve(el);
+      });
+    }, { threshold: 0.35 });
+
+    document.querySelectorAll("[data-count]").forEach((el) => counterObserver.observe(el));
+
+    const canvas = document.getElementById("climateCanvas");
+    const ctx = canvas.getContext("2d");
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let points = [];
+    let rafId = null;
+
+    function resizeCanvas() {
+      const ratio = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.floor(canvas.clientWidth * ratio);
+      canvas.height = Math.floor(canvas.clientHeight * ratio);
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+      const count = Math.max(42, Math.floor(canvas.clientWidth / 24));
+      points = Array.from({ length: count }, () => ({
+        x: Math.random() * canvas.clientWidth,
+        y: Math.random() * canvas.clientHeight,
+        vx: (Math.random() - 0.5) * 0.28,
+        vy: (Math.random() - 0.5) * 0.28,
+        r: 1 + Math.random() * 2.4
+      }));
+    }
+
+    function drawCanvas() {
+      ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+      ctx.fillStyle = "rgba(184, 238, 95, 0.55)";
+      ctx.strokeStyle = "rgba(32, 189, 208, 0.14)";
+      ctx.lineWidth = 1;
+
+      for (let i = 0; i < points.length; i += 1) {
+        const p = points[i];
+        if (!reducedMotion) {
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.x < 0 || p.x > canvas.clientWidth) p.vx *= -1;
+          if (p.y < 0 || p.y > canvas.clientHeight) p.vy *= -1;
+        }
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+
+        for (let j = i + 1; j < points.length; j += 1) {
+          const q = points[j];
+          const dx = p.x - q.x;
+          const dy = p.y - q.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 105) {
+            ctx.globalAlpha = 1 - dist / 105;
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(q.x, q.y);
+            ctx.stroke();
+            ctx.globalAlpha = 1;
+          }
+        }
+      }
+
+      if (!reducedMotion) rafId = requestAnimationFrame(drawCanvas);
+    }
+
+    window.addEventListener("resize", () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      resizeCanvas();
+      drawCanvas();
+    });
+
+    resizeCanvas();
+    drawCanvas();
+  </script>
+</body>
+</html>
